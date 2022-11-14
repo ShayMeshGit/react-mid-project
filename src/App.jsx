@@ -6,8 +6,10 @@ import { USERS_URL, TODOS_URL, POSTS_URL } from "./resources/URLs";
 import SideTodos from "./components/SideTodos";
 import SidePosts from "./components/SidePosts";
 import { put, post } from "./utils/axios";
+import UserForm from "./components/UserForm";
 
 function App() {
+  const [showForm, setShowForm] = useState(false);
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const { data } = useAxios(USERS_URL);
@@ -120,10 +122,36 @@ function App() {
     });
   };
 
+  const showUserForm = () => {
+    setSelectedUser(null);
+    setShowForm(true);
+  };
+
+  const cancel = () => {
+    setShowForm(false);
+  };
+
+  const addUser = async ({ name, email }) => {
+    const newUser = {
+      name,
+      email,
+      address: {
+        city: "",
+        street: "",
+        zipcode: "",
+      },
+      todos: [],
+      posts: [],
+    };
+    const { data } = await post(USERS_URL, newUser);
+    setUsers((prev) => [...prev, { ...newUser, id: data.id }]);
+  };
+
   return (
     <div className="wrapper">
       {users && (
         <UsersList
+          showUserForm={showUserForm}
           users={users}
           selectedUser={selectedUser}
           selectUser={selectUser}
@@ -145,6 +173,8 @@ function App() {
             <SidePosts selectedUser={selectedUser} addPost={addPost} />
           ) : null}
         </div>
+      ) : showForm ? (
+        <UserForm cancel={cancel} addUser={addUser} />
       ) : null}
     </div>
   );

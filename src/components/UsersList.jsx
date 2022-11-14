@@ -7,6 +7,7 @@ const UsersList = ({
   updateUser,
   deleteUser,
   selectedUser,
+  showUserForm,
 }) => {
   const [searchValue, setSearchValue] = useState("");
 
@@ -23,8 +24,16 @@ const UsersList = ({
     <main className="app">
       <div className="search">
         <label htmlFor="search">Search</label>
-        <input type="text" id="search" name="search" onChange={handleChange} />
-        <img src="/search-icon.svg" alt="search" />
+        <div className="search-input">
+          <img src="/search-icon.svg" alt="search" />
+          <input
+            type="text"
+            id="search"
+            name="search"
+            onChange={handleChange}
+          />
+        </div>
+        <button onClick={showUserForm}>Add</button>
       </div>
       {filterdUsers.length > 0 &&
         filterdUsers.map((user) => (
