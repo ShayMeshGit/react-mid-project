@@ -1,9 +1,11 @@
 import React from "react";
-
-const UserTodos = () => {
+import Todo from "./Todo";
+const UserTodos = ({ todos }) => {
   return (
-    <section className="todos-container">
-      <h2>todos</h2>
+    <section className="side-container">
+      {todos.map((todo) => (
+        <Todo key={todo.id} todo={todo} />
+      ))}
     </section>
   );
 };

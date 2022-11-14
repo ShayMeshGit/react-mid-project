@@ -1,90 +1,71 @@
 import "./App.css";
 import { useState, useEffect } from "react";
-import { getAll, getByUserId } from "./utils/axios";
 import UsersList from "./components/UsersList";
-import UserPosts from "./components/UserPosts";
-import UserTodos from "./components/UserTodos";
-
-const USERS_URL = "https://jsonplaceholder.typicode.com/users";
-const TODOS_URL = "https://jsonplaceholder.typicode.com/todos";
-const POSTS_URL = "https://jsonplaceholder.typicode.com/posts";
+import useAxios from "./hooks/useAxios";
+import { USERS_URL, TODOS_URL, POSTS_URL } from "./resources/URLs";
+import SideTodos from "./components/SideTodos";
+import SidePosts from "./components/SidePosts";
 
 function App() {
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
-  const [userTodos, setUserTodos] = useState(null);
-  const [userPosts, setUserPosts] = useState(null);
+  const { data } = useAxios(USERS_URL);
+  const { data: todos } = useAxios(TODOS_URL);
+  const { data: posts } = useAxios(POSTS_URL);
 
+  //Modifies the Users Array to include user todos, posts and isAllCompleted
   useEffect(() => {
-    const abortContoller = new AbortController();
-
-    const fetchUsers = async () => {
-      const { data } = await getAll(USERS_URL, abortContoller);
-      setUsers(data);
-    };
-
-    fetchUsers();
-
-    return () => abortContoller.abort();
-  }, []);
-
-  useEffect(() => {
-    if (!selectedUser) return;
-    const todosAbortContoller = new AbortController();
-    const postsAbortContoller = new AbortController();
-
-    const fetchUserTodos = async () => {
-      const { data } = await getByUserId(
-        TODOS_URL,
-        selectedUser.id,
-        todosAbortContoller
-      );
-      return data;
-    };
-
-    const fetchUsersPosts = async () => {
-      const { data } = await getByUserId(
-        POSTS_URL,
-        selectedUser.id,
-        postsAbortContoller
-      );
-      return data;
-    };
-
-    const fetchData = async () => {
-      const [todos, posts] = await Promise.all([
-        fetchUserTodos(),
-        fetchUsersPosts(),
-      ]);
-      setUserTodos(todos);
-      setUserPosts(posts);
-    };
-
-    fetchData();
-
-    return () => {
-      postsAbortContoller.abort();
-      todosAbortContoller.abort();
-    };
-  }, [selectedUser]);
+    if (!data || !todos || !posts) return;
+    const users = data.map((user) => {
+      const usersTodos = todos.filter((todo) => todo.userId === user.id);
+      const usersPosts = posts.filter((post) => post.userId === user.id);
+      const isAllCompleted = usersTodos.every((todo) => todo.completed);
+      return {
+        ...user,
+        todos: usersTodos,
+        posts: usersPosts,
+        isAllCompleted,
+      };
+    });
+    setUsers(users);
+  }, [data, todos, posts]);
 
   const selectUser = (userId) => {
     const user = users.find((user) => user.id === userId);
     setSelectedUser(user);
   };
 
+  const updateUser = (userId, data) => {
+    setUsers((prev) =>
+      prev.map((user) => {
+        if (user.id === userId) {
+          return data;
+        }
+        return user;
+      })
+    );
+  };
+
+  const deleteUser = (userId) => {
+    setUsers((prev) => prev.filter((user) => user.id !== userId));
+  };
+
   return (
     <div className="wrapper">
-      <UsersList users={users} selectUser={selectUser} />
+      {users && (
+        <UsersList
+          users={users}
+          selectedUser={selectedUser}
+          selectUser={selectUser}
+          updateUser={updateUser}
+          deleteUser={deleteUser}
+        />
+      )}
       {selectedUser ? (
         <div className="side-app">
-          {userTodos && userTodos.length > 0 ? (
-            <UserTodos todos={userTodos} />
-          ) : null}
+          {selectedUser ? <SideTodos selectedUser={selectedUser} /> : null}
 
-          {userPosts && userPosts.length > 0 ? (
-            <UserPosts posts={userPosts} />
-          ) : null}
+          {selectedUser ? <SidePosts selectedUser={selectedUser} /> : null}
         </div>
       ) : null}
     </div>

@@ -1,9 +1,12 @@
 import React from "react";
+import Post from "./Post";
 
-const UserPosts = () => {
+const UserPosts = ({ posts }) => {
   return (
-    <section className="posts-container">
-      <h2>posts</h2>
+    <section className="side-container">
+      {posts.map((post) => (
+        <Post key={post.id} post={post} />
+      ))}
     </section>
   );
 };

@@ -6,5 +6,12 @@ export const getAll = (url, abortContoller) =>
 export const getById = (url, id, abortContoller) =>
   axios.get(`${url}/${id}`, { singal: abortContoller.signal });
 
-export const getByUserId = (url, userId, abortContoller) =>
-  axios.get(`${url}?userId=${userId}`, { singal: abortContoller.signal });
+export const put = (url, id, data) =>
+  axios.put(`${url}/${id}`, {
+    body: JSON.stringify(data),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+export const axiosDelete = (url, id) => axios.delete(`${url}/${id}`);
