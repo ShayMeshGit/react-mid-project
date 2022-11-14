@@ -52,7 +52,7 @@ function App() {
 
   const deleteUser = (userId) => {
     setUsers((prev) => prev.filter((user) => user.id !== userId));
-    if (userId === selectedUser.id) {
+    if (userId === selectedUser?.id) {
       setSelectedUser(null);
     }
   };
@@ -161,17 +161,12 @@ function App() {
       )}
       {selectedUser ? (
         <div className="side-app">
-          {selectedUser ? (
-            <SideTodos
-              markCompleted={markCompleted}
-              selectedUser={selectedUser}
-              addTodo={addTodo}
-            />
-          ) : null}
-
-          {selectedUser ? (
-            <SidePosts selectedUser={selectedUser} addPost={addPost} />
-          ) : null}
+          <SideTodos
+            markCompleted={markCompleted}
+            selectedUser={selectedUser}
+            addTodo={addTodo}
+          />
+          <SidePosts selectedUser={selectedUser} addPost={addPost} />
         </div>
       ) : showForm ? (
         <UserForm cancel={cancel} addUser={addUser} />
