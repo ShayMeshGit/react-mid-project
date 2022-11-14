@@ -1,6 +1,19 @@
-import React from "react";
+import React, { useState } from "react";
 
-const Todo = ({ todo }) => {
+const Todo = ({ todo, markCompleted }) => {
+  const [loading, setloading] = useState(false);
+
+  const mark = async () => {
+    setloading(true);
+    try {
+      await markCompleted(todo);
+    } catch (err) {
+      alert(err);
+    } finally {
+      setloading(false);
+    }
+  };
+
   return (
     <div className="item">
       <div className="item-attr">
@@ -16,6 +29,9 @@ const Todo = ({ todo }) => {
             <img src="v-icon.svg" alt="v-icon" />
           )}
         </p>
+        <button disabled={loading} onClick={mark}>
+          Mark Completed
+        </button>
       </div>
     </div>
   );

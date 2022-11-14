@@ -52,7 +52,7 @@ button:hover {
   align-items: center;
   height: 90vh;
   width: 40%;
-  max-width: 400px;
+  max-width: 500px;
   min-width: 300px;
 }
 
@@ -132,12 +132,18 @@ button:hover {
   width: 100%;
 }
 
-.side-container {
+.side-container,
+.side-form-container {
   border: 2px solid #000;
   width: 100%;
   padding: 1rem;
   max-height: 40vh;
   overflow-y: scroll;
+}
+
+.side-form-container {
+  overflow: hidden;
+  padding: 3rem 3rem 1rem 3rem;
 }
 
 .side-header {
@@ -181,14 +187,39 @@ button:hover {
 }
 
 .completed > label {
-  width: 45%;
+  width: 33%;
 }
 
 .completed > p {
-  width: 55%;
+  width: 33%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .completed > p > img {
   width: 20px;
   height: 20px;
+}
+
+.completed > button {
+  width: 33%;
+}
+
+.user-form > label {
+  width: 15%;
+}
+
+.user-form > input {
+  width: 85%;
+}
+
+.form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.form-actions > button {
+  border: 1px solid gray;
 }

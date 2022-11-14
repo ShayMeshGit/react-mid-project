@@ -1,14 +1,27 @@
-import React from "react";
+import React, { useState } from "react";
 import UserTodos from "./UserTodos";
+import TodoForm from "./TodoForm";
+const SideTodos = ({ selectedUser, markCompleted, addTodo }) => {
+  const [showForm, setShowForm] = useState(false);
 
-const SideTodos = ({ selectedUser }) => {
+  const cancel = () => {
+    setShowForm(false);
+  };
+
+  const title = !showForm ? "Todos - " : "New Todo - ";
   return (
     <div className="side-wrapper">
       <div className="side-header">
-        <h2>Todos - User {selectedUser.id}</h2>
-        <button>ADD</button>
+        <h2>
+          {title}User {selectedUser.id}
+        </h2>
+        {!showForm && <button onClick={() => setShowForm(true)}>ADD</button>}
       </div>
-      <UserTodos todos={selectedUser.todos} />
+      {!showForm ? (
+        <UserTodos todos={selectedUser.todos} markCompleted={markCompleted} />
+      ) : (
+        <TodoForm cancel={cancel} addTodo={addTodo} />
+      )}
     </div>
   );
 };

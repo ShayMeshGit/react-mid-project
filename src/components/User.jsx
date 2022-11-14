@@ -5,6 +5,7 @@ import { USERS_URL } from "../resources/URLs";
 const User = ({ user, selectUser, updateUser, deleteUser, selectedUser }) => {
   const [userData, setUserData] = useState(user);
   const [show, setShow] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (event) => {
     const { value } = event.target;
@@ -31,20 +32,26 @@ const User = ({ user, selectUser, updateUser, deleteUser, selectedUser }) => {
   };
 
   const update = async () => {
+    setLoading(true);
     try {
       await put(USERS_URL, user.id, userData);
       updateUser(user.id, userData);
     } catch (err) {
       alert(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   const sendDeleteUser = async () => {
+    setLoading(true);
     try {
       await axiosDelete(USERS_URL, user.id);
       deleteUser(user.id);
     } catch (err) {
       alert(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -84,8 +91,12 @@ const User = ({ user, selectUser, updateUser, deleteUser, selectedUser }) => {
           </button>
         </div>
         <div className="right-actions">
-          <button onClick={update}>update</button>
-          <button onClick={sendDeleteUser}>delete</button>
+          <button onClick={update} disabled={loading}>
+            update
+          </button>
+          <button onClick={sendDeleteUser} disabled={loading}>
+            delete
+          </button>
         </div>
       </div>
       {show && (

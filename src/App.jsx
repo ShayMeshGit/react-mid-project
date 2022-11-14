@@ -5,6 +5,7 @@ import useAxios from "./hooks/useAxios";
 import { USERS_URL, TODOS_URL, POSTS_URL } from "./resources/URLs";
 import SideTodos from "./components/SideTodos";
 import SidePosts from "./components/SidePosts";
+import { put, post } from "./utils/axios";
 
 function App() {
   const [users, setUsers] = useState([]);
@@ -39,7 +40,8 @@ function App() {
     setUsers((prev) =>
       prev.map((user) => {
         if (user.id === userId) {
-          return data;
+          const isAllCompleted = data.todos.every((todo) => todo.completed);
+          return { ...data, isAllCompleted };
         }
         return user;
       })
@@ -48,6 +50,74 @@ function App() {
 
   const deleteUser = (userId) => {
     setUsers((prev) => prev.filter((user) => user.id !== userId));
+    if (userId === selectedUser.id) {
+      setSelectedUser(null);
+    }
+  };
+
+  const markCompleted = async (newTodo) => {
+    try {
+      await put(TODOS_URL, newTodo.id, { ...newTodo, completed: true });
+    } catch (err) {
+    } finally {
+      setUsers((prev) => {
+        const userIndex = prev.findIndex((user) => user.id === selectedUser.id);
+        const newTodos = prev[userIndex].todos.map((todo) => {
+          if (todo.id === newTodo.id) {
+            todo.completed = true;
+            return todo;
+          }
+          return todo;
+        });
+        const isAllCompleted = newTodos.every((todo) => todo.completed);
+        const newUser = { ...prev[userIndex], todos: newTodos, isAllCompleted };
+        prev.splice(userIndex, 1, newUser);
+        setSelectedUser(newUser);
+        return prev;
+      });
+    }
+  };
+
+  const addTodo = async (title) => {
+    const newTodo = {
+      title,
+      completed: false,
+      userId: selectedUser.id,
+    };
+    const { data } = await post(TODOS_URL, newTodo);
+    setUsers((prev) => {
+      const userIndex = prev.findIndex((user) => user.id === selectedUser.id);
+      const newTodos = [...prev[userIndex].todos, { ...newTodo, id: data.id }];
+      const isAllCompleted = newTodos.every((todo) => todo.completed);
+      const newUser = {
+        ...prev[userIndex],
+        todos: newTodos,
+        isAllCompleted,
+      };
+      prev.splice(userIndex, 1, newUser);
+      setSelectedUser(newUser);
+      return prev;
+    });
+  };
+
+  const addPost = async ({ title, body }) => {
+    const newPost = {
+      title,
+      body,
+      userId: selectedUser.id,
+    };
+    const { data } = await post(POSTS_URL, newPost);
+    setUsers((prev) => {
+      const userIndex = prev.findIndex((user) => user.id === selectedUser.id);
+      const newPosts = [...prev[userIndex].posts, { ...newPost, id: data.id }];
+      const newUser = {
+        ...prev[userIndex],
+        posts: newPosts,
+      };
+      prev.splice(userIndex, 1, newUser);
+      setSelectedUser(newUser);
+      return prev;
+    });
   };
 
   return (
@@ -63,9 +133,17 @@ function App() {
       )}
       {selectedUser ? (
         <div className="side-app">
-          {selectedUser ? <SideTodos selectedUser={selectedUser} /> : null}
+          {selectedUser ? (
+            <SideTodos
+              markCompleted={markCompleted}
+              selectedUser={selectedUser}
+              addTodo={addTodo}
+            />
+          ) : null}
 
-          {selectedUser ? <SidePosts selectedUser={selectedUser} /> : null}
+          {selectedUser ? (
+            <SidePosts selectedUser={selectedUser} addPost={addPost} />
+          ) : null}
         </div>
       ) : null}
     </div>
